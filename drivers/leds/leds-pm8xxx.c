@@ -27,6 +27,7 @@
 #include <linux/atmel_qt602240.h>
 #endif
 
+
 #define SSBI_REG_ADDR_DRV_KEYPAD	0x48
 #define PM8XXX_DRV_KEYPAD_BL_MASK	0xf0
 #define PM8XXX_DRV_KEYPAD_BL_SHIFT	0x04
@@ -156,7 +157,7 @@ void pm8xxx_led_current_set_for_key(int brightness_key)
 
 	}
 }
-extern void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
+static void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
 {
 	struct pm8xxx_led_data *led = container_of(led_cdev,  struct pm8xxx_led_data, cdev);
 	int rc, offset;
@@ -497,7 +498,7 @@ static DEVICE_ATTR(pwm_coefficient, 0644, pm8xxx_led_pwm_coefficient_show, pm8xx
 
 static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 {
-	const struct pm8xxx_led_platform_data *pdata = pdev->dev.platform_data;
+	struct pm8xxx_led_platform_data *pdata = pdev->dev.platform_data;
 	struct pm8xxx_led_configure *curr_led;
 	struct pm8xxx_led_data *led, *led_dat;
 	int i, j, ret = -ENOMEM;
@@ -580,12 +581,6 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 			}
 		}
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
-	if (!strcmp(pdata->led_config[0].name, "button-backlight")) {
-		sweep2wake_setleddev(&ldata[0].ldev);
-		printk(KERN_INFO "[sweep2wake]: set led device %s, bank %d\n", pdata->led_config[0].name, ldata[0].bank);
-	}
-#endif	      
 		if (led_dat->id >= PM8XXX_ID_LED_2 && led_dat->id <= PM8XXX_ID_LED_0) {
 			ret = device_create_file(led_dat->cdev.dev, &dev_attr_lut_coefficient);
 			if (ret < 0) {
@@ -625,9 +620,16 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 		}
 	}
 
+#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+	if (!strcmp(pdata->leds[0].name, "button-backlight")) {
+		sweep2wake_setleddev(&led[i].cdev);
+		printk(KERN_INFO "[sweep2wake]: set led device %s, bank %d\n", pdata->leds[0].name, pdata->leds[0].flags);
+	}
+#endif
 	pm8xxx_leds = led;
 
 	platform_set_drvdata(pdev, led);
+
 
 	return 0;
 

@@ -2513,7 +2513,7 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 		get_object_address(ts, GEN_POWERCONFIG_T7) + T7_CFG_IDLEACQINT, 0x0);
 	i2c_atmel_write_byte_data(client,
 		get_object_address(ts, GEN_POWERCONFIG_T7) + T7_CFG_ACTVACQINT, 0x0);
-	
+	/*had to figure this part out */
 #ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
 	}
 #endif
