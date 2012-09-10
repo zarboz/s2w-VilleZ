@@ -1285,7 +1285,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 					}
 				}
 			}
-#endif
+#endif /*the sweep2wake needs relocation if it lives here it is not reading touch properly*/
 				if (ts->debug_log_level & 0x2)
 					printk(KERN_INFO "[TP]Finger %d=> X:%d, Y:%d, w:%d, z:%d, F:%d\n",
 						loop_i + 1,
