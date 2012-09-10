@@ -25,6 +25,9 @@
 #include <linux/slab.h>
 #include <linux/gpio.h>
 #include <linux/workqueue.h>
+#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#include <linux/leds-pm8xxx.h>
+#endif
 
 #define CY8C_I2C_RETRY_TIMES (10)
 #define CY8C_KEYLOCKTIME    (1500)
@@ -61,6 +64,62 @@ static void cy8c_cs_early_suspend(struct early_suspend *h);
 static void cy8c_cs_late_resume(struct early_suspend *h);
 #endif
 
+#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+bool s2w_switch = true, scr_suspended = false, exec_count = true;
+bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
+static struct input_dev * sweep2wake_pwrdev;
+static struct led_classdev * sweep2wake_leddev;
+static DEFINE_MUTEX(pwrlock);
+ 
+#ifdef CONFIG_CMDLINE_OPTIONS
+static int __init atmel_read_s2w_cmdline(char *s2w)
+{
+	if (strcmp(s2w, "1") == 0) {
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled. | s2w='%s'", s2w);
+		s2w_switch = true;
+	} else if (strcmp(s2w, "0") == 0) {
+		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake disabled. | s2w='%s'", s2w);
+		s2w_switch = false;
+	} else {
+		printk(KERN_INFO "[cmdline_s2w]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
+		s2w_switch = false;
+	}
+	return 1;
+}
+__setup("s2w=", atmel_read_s2w_cmdline);
+#endif
+
+extern void sweep2wake_setdev(struct input_dev * input_device) {
+	sweep2wake_pwrdev = input_device;
+	return;
+}
+EXPORT_SYMBOL(sweep2wake_setdev);
+
+extern void sweep2wake_setleddev(struct led_classdev * led_dev) {
+	sweep2wake_leddev = led_dev;
+	return;
+}
+EXPORT_SYMBOL(sweep2wake_setleddev);
+
+static void sweep2wake_presspwr(struct work_struct * sweep2wake_presspwr_work) {
+	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
+	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+	msleep(100);
+	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
+	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+	msleep(100);
+	mutex_unlock(&pwrlock);
+	return;
+}
+static DECLARE_WORK(sweep2wake_presspwr_work, sweep2wake_presspwr);
+
+void sweep2wake_pwrtrigger(void) {
+	if (mutex_trylock(&pwrlock)) {
+		schedule_work(&sweep2wake_presspwr_work);
+	}
+	return;
+}
+#endif
 int i2c_cy8c_read(struct i2c_client *client, uint8_t addr, uint8_t *data, uint8_t length)
 {
 	int retry;
