@@ -157,7 +157,7 @@ void pm8xxx_led_current_set_for_key(int brightness_key)
 
 	}
 }
-static void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
+extern void pm8xxx_led_current_set(struct led_classdev *led_cdev, enum led_brightness brightness)
 {
 	struct pm8xxx_led_data *led = container_of(led_cdev,  struct pm8xxx_led_data, cdev);
 	int rc, offset;
