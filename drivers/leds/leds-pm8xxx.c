@@ -620,7 +620,7 @@ static int __devinit pm8xxx_led_probe(struct platform_device *pdev)
 		}
 	}
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE /*i need to see if 0 is the right integer here for LED control as right now it renders the screen useless after screenoff function */
 	if (!strcmp(pdata->leds[0].name, "button-backlight")) {
 		sweep2wake_setleddev(&led[i].cdev);
 		printk(KERN_INFO "[sweep2wake]: set led device %s, bank %d\n", pdata->leds[0].name, pdata->leds[0].flags);
