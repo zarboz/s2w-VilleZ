@@ -36,7 +36,6 @@
 #endif
 #ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
 #include <linux/leds-pm8xxx.h>
-#include <linux/s2w-switch.h>
 #endif
 #define ATMEL_EN_SYSFS
 #define ATMEL_I2C_RETRY_TIMES 10
