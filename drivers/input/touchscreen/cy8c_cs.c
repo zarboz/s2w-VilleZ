@@ -662,6 +662,7 @@ static irqreturn_t cy8c_cs_irq_handler(int irq, void *dev_id)
 	queue_work(cs->cy8c_wq, &cs->work);
 	
 #ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+	printk(KERN_INFO "[sweep2wake]: X %i, Y %i", finger_data[i][0], finger_data[i][1]);
 				//left->right
 				if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch > 0)) {
 					prevx = 30;
@@ -670,10 +671,6 @@ static irqreturn_t cy8c_cs_irq_handler(int irq, void *dev_id)
 					   ((finger_data[loop_i][0] > prevx) &&
 					    (finger_data[loop_i][0] < nextx) &&
 					    (finger_data[loop_i][1] > 950))) {
-						if ((led_exec_count == true) && (scr_on_touch == false) && (s2w_switch != 2)) {
-							 pm8xxx_led_current_set(sweep2wake_leddev, 255);
-							printk(KERN_INFO "[sweep2wake]: activated button_backlight");
-							led_exec_count = false;
 						}
 						prevx = 300;
 						nextx = 680;
@@ -739,8 +736,7 @@ static irqreturn_t cy8c_cs_irq_handler(int irq, void *dev_id)
 			    (ts->suspend == 1) &&
 			    (scr_on_touch == false) &&
 			    (exec_count == true)) {
-				 pm8xxx_led_current_set(sweep2wake_leddev, 0);
-				printk(KERN_INFO "[sweep2wake]: deactivated button_backlight");
+				
 			}
 			exec_count = true;
 			led_exec_count = true;

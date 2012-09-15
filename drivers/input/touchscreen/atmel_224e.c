@@ -1217,6 +1217,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 							1, (ts->finger_count == ++finger_report));
 				}
 #ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+			
 			//left->right
 			if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch == true)) {
 				prevx = 30;
@@ -1225,10 +1226,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 				   ((ts->finger_data[loop_i].x > prevx) &&
 				    (ts->finger_data[loop_i].x < nextx) &&
 				    (ts->finger_data[loop_i].y > 950))) {
-					if ((led_exec_count == true) && (scr_on_touch == false)) {
-						 pm8xxx_led_current_set(sweep2wake_leddev, 255);
-						printk(KERN_INFO "[sweep2wake]: activated button_backlight");
-						led_exec_count = false;
+					
 					}
 					prevx = 300;
 					nextx = 680;
@@ -1295,7 +1293,6 @@ static void multi_input_report(struct atmel_ts_data *ts)
 				return;
 		}
 	}
-}
 
 static irqreturn_t atmel_irq_thread(int irq, void *ptr)
 {
@@ -1395,8 +1392,7 @@ static irqreturn_t atmel_irq_thread(int irq, void *ptr)
 				    (led_exec_count == false) &&
 				    (scr_on_touch == false) &&
 				    (exec_count == true)) {
-					 pm8xxx_led_current_set(sweep2wake_leddev, 0);
-					printk(KERN_INFO "[sweep2wake]: deactivated button_backlight");
+					 
 				}
 				exec_count = true;
 				led_exec_count = true;
@@ -2469,8 +2465,7 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 		scr_suspended = true;
 		enable_irq_wake(client->irq);
 		//ensure backlight is turned off
-		 pm8xxx_led_current_set(sweep2wake_leddev, 0);
-		printk(KERN_INFO "[sweep2wake]: deactivated button_backlight | suspend");
+		 
 	}
 #endif
 #ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
