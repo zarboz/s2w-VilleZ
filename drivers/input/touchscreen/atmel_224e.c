@@ -34,7 +34,7 @@
 #if defined(CONFIG_TOUCH_KEY_FILTER)
 #include <linux/input/cy8c_cs.h>
 #endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 #include <linux/leds-pm8xxx.h>
 #endif
 #define ATMEL_EN_SYSFS
@@ -147,7 +147,7 @@ static void restore_normal_threshold(struct atmel_ts_data *ts);
 static void confirm_calibration(struct atmel_ts_data *ts, uint8_t recal, uint8_t reason);
 static void multi_input_report(struct atmel_ts_data *ts);
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 bool s2w_switch = true, scr_suspended = false, exec_count = true;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
 static struct input_dev * sweep2wake_pwrdev;
@@ -1216,7 +1216,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 					htc_input_report(ts->input_dev, &ts->finger_data[loop_i],
 							1, (ts->finger_count == ++finger_report));
 				}
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 			
 			//left->right
 			if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch == true)) {
@@ -1385,7 +1385,7 @@ static irqreturn_t atmel_irq_thread(int irq, void *ptr)
 				compatible_input_report(ts->input_dev, NULL, 0, 1, 0, 0);
 			else
 				htc_input_report(ts->input_dev, NULL, 0, 1);
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 			 /* if finger released, reset count & barriers */
 			if ((s2w_switch == true)) {
 				if ((scr_suspended == true) &&
@@ -2459,7 +2459,7 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 	struct atmel_ts_data *ts = i2c_get_clientdata(client);
 	printk(KERN_INFO "[TP]%s:enter unlock 0\n", __func__);
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == true) {
 		//screen off, enable_irq_wake
 		scr_suspended = true;
@@ -2468,11 +2468,11 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 		 
 	}
 #endif
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == false) {
 #endif
 		disable_irq(client->irq);
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 
@@ -2497,7 +2497,7 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 			ts->ATCH_EXT, 4);
 	}
 	
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == false) {
 #endif
 
@@ -2511,7 +2511,7 @@ static int atmel_224e_ts_suspend(struct i2c_client *client, pm_message_t mesg)
 	i2c_atmel_write_byte_data(client,
 		get_object_address(ts, GEN_POWERCONFIG_T7) + T7_CFG_ACTVACQINT, 0x0);
 	/*had to figure this part out */
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 
@@ -2521,7 +2521,7 @@ static int atmel_224e_ts_resume(struct i2c_client *client)
 {
 	struct atmel_ts_data *ts = i2c_get_clientdata(client);
 	uint8_t loop_i = 0;
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == true) {
 		//screen on, disable_irq_wake
 		scr_suspended = false;
@@ -2553,14 +2553,14 @@ static int atmel_224e_ts_resume(struct i2c_client *client)
 		}
 	}
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == false) {
 #endif
 	i2c_atmel_write(ts->client,
 			get_object_address(ts, GEN_POWERCONFIG_T7),
 			ts->config_setting[ts->status].config_T7,
 			get_object_size(ts, GEN_POWERCONFIG_T7));
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 	if (ts->status == NONE) {
@@ -2588,11 +2588,11 @@ static int atmel_224e_ts_resume(struct i2c_client *client)
 		}
 	}
 
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == false) {
 #endif
 		enable_irq(client->irq);
-#ifdef CONFIG_TOUCHSCREEN_ATMEL_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 

@@ -25,7 +25,7 @@
 #include <linux/slab.h>
 #include <linux/gpio.h>
 #include <linux/workqueue.h>
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 #include <linux/leds-pm8xxx.h>
 #endif
 
@@ -64,7 +64,7 @@ static void cy8c_cs_early_suspend(struct early_suspend *h);
 static void cy8c_cs_late_resume(struct early_suspend *h);
 #endif
 
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 int s2w_switch = 1;
 bool scr_suspended = false, exec_count = true;
 bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
@@ -395,7 +395,7 @@ static ssize_t debug_level_show(struct device *dev, struct device_attribute *att
 }
 DEVICE_ATTR(debug_level, (S_IWUSR|S_IRUGO), debug_level_show, debug_level_set);
 
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 static ssize_t cy8c_sweep2wake_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -431,7 +431,7 @@ static int cy8c_touchkey_sysfs_init(void)
 		ret = -ENOMEM;
 		return ret;
 	}
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	ret = sysfs_create_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
 	if (ret) {
 		printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
@@ -483,7 +483,7 @@ static int cy8c_touchkey_sysfs_init(void)
 
 static void cy8c_touchkey_sysfs_deinit(void)
 {
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	sysfs_remove_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
 #endif
 	sysfs_remove_file(android_touchkey_kobj, &dev_attr_gpio.attr);
@@ -655,13 +655,13 @@ static enum hrtimer_restart cy8c_cs_timer_func(struct hrtimer *timer)
 static irqreturn_t cy8c_cs_irq_handler(int irq, void *dev_id)
 {
 	struct cy8c_cs_data *cs = dev_id;
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	int prevx = 0, nextx = 0;
 #endif
 	disable_irq_nosync(cs->client->irq);
 	queue_work(cs->cy8c_wq, &cs->work);
 	
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	printk(KERN_INFO "[sweep2wake]: X %i, Y %i", finger_data[i][0], finger_data[i][1]);
 				//left->right
 				if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch > 0)) {
@@ -727,7 +727,7 @@ static irqreturn_t cy8c_cs_irq_handler(int irq, void *dev_id)
 					}
 				}
 #endif
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 		 /* if finger released, reset count & barriers */
 		if ((((ts->finger_count > 0)?1:0) == 0) && (s2w_switch > 0)) {
 			if ((s2w_switch != 2) &&
@@ -913,7 +913,7 @@ static int cy8c_cs_suspend(struct i2c_client *client, pm_message_t mesg)
 		if (!ret)
 			cancel_delayed_work(&cs->work_raw);
 	}
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch > 0) {
 		//screen off, enable_irq_wake
 		scr_suspended = true;
@@ -925,23 +925,23 @@ static int cy8c_cs_suspend(struct i2c_client *client, pm_message_t mesg)
 		}
 	}
 #endif
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == 0) {
 #endif
 	if (client->irq && cs->use_irq) {
 		disable_irq(client->irq);
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 		ret = cancel_work_sync(&cs->work);
 		if (ret)
 			enable_irq(client->irq);
 	}
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == 0) {
 #endif
 	i2c_cy8c_write_byte_data(client, CS_MODE, CS_CMD_DSLEEP);
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 	return 0;
@@ -951,7 +951,7 @@ static int cy8c_cs_resume(struct i2c_client *client)
 {
 	struct cy8c_cs_data *cs = i2c_get_clientdata(client);
 	
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch > 0) {
 		/* HW revision fix, this is not needed for all touch controllers!
 		 *
@@ -974,19 +974,19 @@ static int cy8c_cs_resume(struct i2c_client *client)
 
 	pr_info("[cap] %s\n", __func__);
 	cs->reset();
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == 0) {
 #endif
 	msleep(50);
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 	if (client->irq && cs->use_irq)
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	if (s2w_switch == 0) {
 #endif
 		enable_irq(client->irq);
-#ifdef CONFIG_TOUCHSCREEN_CYPRESS_SWEEP2WAKE
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	}
 #endif
 	return 0;

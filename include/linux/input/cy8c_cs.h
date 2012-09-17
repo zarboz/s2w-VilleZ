@@ -3,6 +3,9 @@
 
 
 #include <linux/types.h>
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
+#include <linux/input.h>
+#endif
 
 #define CYPRESS_CS_NAME 	"CY8C20224"
 #define CYPRESS_SS_NAME 	"CY8C21x34B"
@@ -82,6 +85,10 @@ extern struct blocking_notifier_head touchkey_notifier_list;
 
 extern int register_notifier_by_touchkey(struct notifier_block *nb);
 extern int unregister_notifier_by_touchkey(struct notifier_block *nb);
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
+ /* Sweep2Wake */
+ extern void sweep2wake_setdev(struct input_dev * input_device);
+#endif
 #endif
 
 #endif
