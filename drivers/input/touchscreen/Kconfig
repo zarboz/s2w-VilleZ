@@ -474,10 +474,10 @@ config TOUCHSCREEN_TNETV107X
 	  module will be called tnetv107x-ts.
 
 config TOUCHSCREEN_VILLE_SWEEP2WAKE
-	tristate "Sweep2wake for HTC Ville touchscreens"
-	help
-	  Sweep2wake for Ville Touch drivers
-	default n
+	tristate "Sweep2wake for Ville based touchscreens"
+	depends on TOUCHSCREEN_ATMEL_224E 
+	depends on TOUCHSCREEN_CYPRESS_TMA
+	default y
 
 config TOUCHSCREEN_TOUCHRIGHT
 	tristate "Touchright serial touchscreen"
