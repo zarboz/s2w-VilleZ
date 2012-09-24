@@ -149,60 +149,54 @@ static void confirm_calibration(struct atmel_ts_data *ts, uint8_t recal, uint8_t
 static void multi_input_report(struct atmel_ts_data *ts);
 
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
-int s2w_switch = 2; /* By default enable sweep2wake without backlight */
-bool s2w_switch = true, scr_suspended = false, exec_count = true;
-bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
+int s2w_switch = 1;
+bool scr_suspended = false, exec_count = true;
+bool scr_on_touch = false, barrier[2] = {false, false};
 static struct input_dev * sweep2wake_pwrdev;
-static struct led_classdev * sweep2wake_leddev;
-static DEFINE_MUTEX(pwrlock);
+static DEFINE_MUTEX(pwrkeyworklock);
  
 #ifdef CONFIG_CMDLINE_OPTIONS
-static int __init atmel_read_s2w_cmdline(char *s2w)
+static int __init cy8c_read_s2w_cmdline(char *s2w)
 {
-	if (strcmp(s2w, "1") == 0) {
-		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled. | s2w='%s'", s2w);
-		s2w_switch = true;
-	} else if (strcmp(s2w, "0") == 0) {
-		printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake disabled. | s2w='%s'", s2w);
-		s2w_switch = false;
-	} else {
-		printk(KERN_INFO "[cmdline_s2w]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
-		s2w_switch = false;
-	}
-	return 1;
+        if (strcmp(s2w, "1") == 0) {
+            printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake enabled. | s2w='%s'", s2w);
+         s2w_switch = 1;
+ } else if (strcmp(s2w, "0") == 0) {
+             printk(KERN_INFO "[cmdline_s2w]: Sweep2Wake disabled. | s2w='%s'", s2w);
+                s2w_switch = 0;
+ } else {
+                printk(KERN_INFO "[cmdline_s2w]: No valid input found. Sweep2Wake disabled. | s2w='%s'", s2w);
+          s2w_switch = 0;
+ }
+       return 1;
 }
-__setup("s2w=", atmel_read_s2w_cmdline);
+__setup("s2w=", cy8c_read_s2w_cmdline);
 #endif
 
 extern void sweep2wake_setdev(struct input_dev * input_device) {
-	sweep2wake_pwrdev = input_device;
-	return;
+        sweep2wake_pwrdev = input_device;
+       return;
 }
 EXPORT_SYMBOL(sweep2wake_setdev);
 
-extern void sweep2wake_setleddev(struct led_classdev * led_dev) {
-	sweep2wake_leddev = led_dev;
-	return;
-}
-EXPORT_SYMBOL(sweep2wake_setleddev);
-
 static void sweep2wake_presspwr(struct work_struct * sweep2wake_presspwr_work) {
-	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
-	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(100);
-	input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
-	input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(100);
-	mutex_unlock(&pwrlock);
-	return;
+        mutex_trylock(&pwrkeyworklock);
+ input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 1);
+   input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+   msleep(100);
+    input_event(sweep2wake_pwrdev, EV_KEY, KEY_POWER, 0);
+   input_event(sweep2wake_pwrdev, EV_SYN, 0, 0);
+   msleep(100);
+    mutex_unlock(&pwrkeyworklock);
+  return;
 }
 static DECLARE_WORK(sweep2wake_presspwr_work, sweep2wake_presspwr);
 
 void sweep2wake_pwrtrigger(void) {
-	if (mutex_trylock(&pwrlock)) {
-		schedule_work(&sweep2wake_presspwr_work);
-	}
-	return;
+      if (mutex_trylock(&pwrkeyworklock)) {
+           schedule_work(&sweep2wake_presspwr_work);
+       }
+       return;
 }
 #endif
   
@@ -746,7 +740,7 @@ static ssize_t atmel_info_show(struct device *dev,
 static DEVICE_ATTR(info, S_IRUGO, atmel_info_show, NULL);
 
 
-struct kobject *android_touch_kobj;
+static struct kobject *android_touch_kobj;
 
 static int atmel_touch_sysfs_init(void)
 {
