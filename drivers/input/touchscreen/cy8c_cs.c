@@ -432,7 +432,7 @@ static int cy8c_touchkey_sysfs_init(void)
 		return ret;
 	}
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
-	ret = sysfs_create_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
+	ret = sysfs_create_file(android_touchkey_kobj, &dev_attr_sweep2wake.attr);
 	if (ret) {
 		printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
 		return ret;
@@ -484,7 +484,7 @@ static int cy8c_touchkey_sysfs_init(void)
 static void cy8c_touchkey_sysfs_deinit(void)
 {
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
-	sysfs_remove_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
+	sysfs_remove_file(android_touchkey_kobj, &dev_attr_sweep2wake.attr);
 #endif
 	sysfs_remove_file(android_touchkey_kobj, &dev_attr_gpio.attr);
 	sysfs_remove_file(android_touchkey_kobj, &dev_attr_read.attr);

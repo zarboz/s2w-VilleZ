@@ -71,6 +71,7 @@ obj-$(CONFIG_TOUCHSCREEN_CY8C_TS)	+= cy8c_ts.o
 obj-$(CONFIG_TOUCHSCREEN_CYTTSP_I2C)    += cyttsp-i2c.o
 obj-$(CONFIG_TOUCHSCREEN_CYPRESS_CS)	+= cy8c_cs.o
 obj-$(CONFIG_TOUCHSCREEN_ATMEL_224E) 	+= atmel_224e.o
+obj-$(CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE) += s2w-switch.o
 obj-$(CONFIG_TOUCHSCREEN_CYPRESS_TMA)	+= cy8c_tma_ts.o
 obj-$(CONFIG_TOUCHSCREEN_SIMULATION)    += ts_simulation.o
 

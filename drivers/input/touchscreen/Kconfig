@@ -475,8 +475,8 @@ config TOUCHSCREEN_TNETV107X
 
 config TOUCHSCREEN_VILLE_SWEEP2WAKE
 	tristate "Sweep2wake for Ville based touchscreens"
-	depends on TOUCHSCREEN_ATMEL_224E 
-	depends on TOUCHSCREEN_CYPRESS_TMA
+	help
+	  Sweep2wake for the Ville device
 	default y
 
 config TOUCHSCREEN_TOUCHRIGHT
