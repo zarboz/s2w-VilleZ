@@ -1219,7 +1219,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 			//left->right
 			if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch == true)) {
 				prevx = 30s;
-				nextx = 530;
+				nextx = 500;
 				if ((barrier[0] == true) ||
 				   ((ts->finger_data[loop_i].x > prevx) &&
 				    (ts->finger_data[loop_i].x < nextx) &&
@@ -1227,7 +1227,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 				  
 					}
 					prevx = nextx;
-					nextx = 530;
+					nextx = 500;
 					barrier[0] = true;
 					if ((barrier[1] == true) ||
 					   ((ts->finger_data[loop_i].x > prevx) &&
@@ -1251,7 +1251,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 			//right->left
 			} else if ((ts->finger_count == 1) && (scr_suspended == false) && (s2w_switch == true)) {
 				scr_on_touch=true;
-				prevx = 530;
+				prevx = 500;
 				nextx = 0;
 				if ((barrier[0] == true) ||
 				   ((ts->finger_data[loop_i].x < prevx) &&
