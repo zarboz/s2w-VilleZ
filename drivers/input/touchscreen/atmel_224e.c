@@ -1218,7 +1218,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 			
 			//left->right
 			if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch == true)) {
-				prevx = 30s;
+				prevx = 30;
 				nextx = 500;
 				if ((barrier[0] == true) ||
 				   ((ts->finger_data[loop_i].x > prevx) &&
