@@ -35,7 +35,7 @@
 #include <linux/input/cy8c_cs.h>
 #endif
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
-#include <linux/leds-pm8xxx.h>
+//#include <linux/leds-pm8xxx.h>
 #include <linux/s2w-switch.h>
 #endif
 #define ATMEL_EN_SYSFS

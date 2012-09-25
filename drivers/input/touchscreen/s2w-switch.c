@@ -43,12 +43,13 @@ static struct attribute_group attr_group = {
 };
 
 static struct kobject *s2w_switch_kobj;
+struct kobject *android_touch_kobj;
 
 int s2w_switch_init(void)
 {
 	int retval;
 
-       s2w_switch_kobj = kobject_create_and_add("sweep2wake", *android_touch_kobj);
+       s2w_switch_kobj = kobject_create_and_add("sweep2wake", android_touch_kobj);
         if (!s2w_switch_kobj) {
                 return -ENOMEM;
         }
