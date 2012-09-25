@@ -151,7 +151,7 @@ static void multi_input_report(struct atmel_ts_data *ts);
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 int s2w_switch = 1;
 bool scr_suspended = false, exec_count = true;
-bool scr_on_touch = false, barrier[2] = {false, false};
+bool scr_on_touch = false, led_exec_count = false, barrier[2] = {false, false};
 static struct input_dev * sweep2wake_pwrdev;
 static DEFINE_MUTEX(pwrkeyworklock);
  
