@@ -738,7 +738,30 @@ static ssize_t atmel_info_show(struct device *dev,
 }
 
 static DEVICE_ATTR(info, S_IRUGO, atmel_info_show, NULL);
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
+static ssize_t atmel_sweep2wake_show(struct device *dev,
+              struct device_attribute *attr, char *buf)
+{
+      size_t count = 0;
 
+        count += sprintf(buf, "%d\n", s2w_switch);
+
+        return count;
+}
+
+static ssize_t atmel_sweep2wake_dump(struct device *dev,
+            struct device_attribute *attr, const char *buf, size_t count)
+{
+  if (buf[0] >= '0' && buf[0] <= '2' && buf[1] == '\n')
+                if (s2w_switch != buf[0] - '0')
+                    s2w_switch = buf[0] - '0';
+
+        return count;
+}
+
+static DEVICE_ATTR(sweep2wake, (S_IWUSR|S_IRUGO),
+       atmel_sweep2wake_show, atmel_sweep2wake_dump);
+#endif
 
 static struct kobject *android_touch_kobj;
 
@@ -812,6 +835,13 @@ static int atmel_touch_sysfs_init(void)
 		printk(KERN_ERR "[TP]TOUCH_ERR: create_file info failed\n");
 		return ret;
 	}
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
+	ret = sysfs_create_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
+	if (ret) {
+              printk(KERN_ERR "%s: sysfs_create_file failed\n", __func__);
+            return ret;
+	}
+#endif
 
 	return 0;
 }
@@ -828,6 +858,9 @@ static void atmel_touch_sysfs_deinit(void)
 	sysfs_remove_file(android_touch_kobj, &dev_attr_gpio.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_report_type.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_htc_event.attr);
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
+	sysfs_remove_file(android_touch_kobj, &dev_attr_sweep2wake.attr);
+#endif
 	sysfs_remove_file(android_touch_kobj, &dev_attr_disable_touch.attr);
 	sysfs_remove_file(android_touch_kobj, &dev_attr_reset.attr);
 	kobject_del(android_touch_kobj);
@@ -1194,8 +1227,9 @@ static void htc_input_report(struct input_dev *idev,
 static void multi_input_report(struct atmel_ts_data *ts)
 {
 	uint8_t loop_i, finger_report = 0;
+#ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 	int prevx = 0, nextx =0;
-
+#endif
 	for (loop_i = 0; loop_i < ts->finger_support; loop_i++) {
 		if (ts->finger_pressed & BIT(loop_i)) {
 			if (disable_touch == 0) {
@@ -1214,7 +1248,11 @@ static void multi_input_report(struct atmel_ts_data *ts)
 				}
 #ifdef CONFIG_TOUCHSCREEN_VILLE_SWEEP2WAKE
 			
-			//print(KERN_INFO "[sweep2wake]: X %i, Y %i",finger_data[loop_i].x[0],finger_data[loop_i].y[1]);
+			printk(KERN_INFO "[sweep2wake]:Finger %d=> X:%d, Y:%d, w:%d, z:%d, F:%d\n",
+						loop_i + 1,
+						ts->finger_data[loop_i].x, ts->finger_data[loop_i].y,
+						ts->finger_data[loop_i].w, ts->finger_data[loop_i].z,
+						ts->finger_count);
 			
 			//left->right
 			if ((ts->finger_count == 1) && (scr_suspended == true) && (s2w_switch == true)) {
@@ -1223,7 +1261,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 				if ((barrier[0] == true) ||
 				   ((ts->finger_data[loop_i].x > prevx) &&
 				    (ts->finger_data[loop_i].x < nextx) &&
-				    (ts->finger_data[loop_i].y > 973))) {
+				    (ts->finger_data[loop_i].y > 789))) {
 				  
 					}
 					prevx = nextx;
@@ -1232,11 +1270,11 @@ static void multi_input_report(struct atmel_ts_data *ts)
 					if ((barrier[1] == true) ||
 					   ((ts->finger_data[loop_i].x > prevx) &&
 					    (ts->finger_data[loop_i].x < nextx) &&
-					    (ts->finger_data[loop_i].y > 973))) {
+					    (ts->finger_data[loop_i].y > 789))) {
 						prevx = nextx;
 						barrier[1] = true;
 						if ((ts->finger_data[loop_i].x > prevx) &&
-						    (ts->finger_data[loop_i].y > 973)) {
+						    (ts->finger_data[loop_i].y > 789)) {
 							if (ts->finger_data[loop_i].x > 528) {
 								if (exec_count) {
 									printk(KERN_INFO "[sweep2wake]: ON");
@@ -1252,23 +1290,23 @@ static void multi_input_report(struct atmel_ts_data *ts)
 			} else if ((ts->finger_count == 1) && (scr_suspended == false) && (s2w_switch == true)) {
 				scr_on_touch=true;
 				prevx = 500;
-				nextx = 0;
+				nextx = 30;
 				if ((barrier[0] == true) ||
 				   ((ts->finger_data[loop_i].x < prevx) &&
 				    (ts->finger_data[loop_i].x > nextx) &&
-				    ( ts->finger_data[loop_i].y > 973))) {
+				    ( ts->finger_data[loop_i].y > 789))) {
 					prevx = nextx;
 					nextx = 0;
 					barrier[0] = true;
 					if ((barrier[1] == true) ||
 					   ((ts->finger_data[loop_i].x < prevx) &&
 					    (ts->finger_data[loop_i].x > nextx) &&
-					    (ts->finger_data[loop_i].y > 973))) {
+					    (ts->finger_data[loop_i].y > 789))) {
 						prevx = nextx;
 						barrier[1] = true;
 						if ((ts->finger_data[loop_i].x < prevx) &&
-						    (ts->finger_data[loop_i].y > 973)) {
-							if (ts->finger_data[loop_i].x < 528) {
+						    (ts->finger_data[loop_i].y > 789)) {
+							if (ts->finger_data[loop_i].x < 514) {
 								if (exec_count) {
 									printk(KERN_INFO "[sweep2wake]: OFF");
 									sweep2wake_pwrtrigger();
@@ -1287,8 +1325,7 @@ static void multi_input_report(struct atmel_ts_data *ts)
 						ts->finger_data[loop_i].x, ts->finger_data[loop_i].y,
 						ts->finger_data[loop_i].w, ts->finger_data[loop_i].z,
 						ts->finger_count);
-			} else
-				return;
+			} 
 		}
 	}
 
